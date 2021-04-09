@@ -1,40 +1,57 @@
-# ASP.NET option pattern demo
+# Docker environemnt variable
 
-This is a demo app to show the difference between `IOptionsMonitor`, `IOptions`
-and `IOptionsSnapshot`.
+This is a demo app to show how we can set `ASPNETCORE_ENVIRONMENT` in the
+docker container at the time of docker container start.
 
-- IOptionsMonitor: always return the new value
-- IOptions: always return the old value until the app is restarted
-- IOptionsSnapshot: return the new value if it is a new request
+This sample app is having two different connection strings in `appsettings.json`
+and `appsettings.Development.json`. 
 
-There are two action methods, `Index` and `Privacy`. Both the methods are having 
-the same code in it which is getting the value of `Name `from `appsettings` for 
-20 times in a loop using `IOptionsMonitor`, `IOptions` and `IOptionsSnapshot`.
+```
+"ConnectionStrings": {
+  "ConStr": "prd con str"
+}
 
-```c#
-for (int i = 0; i < 20; i++)
-{
-    string name1 = _optionsMonitor.CurrentValue.Name;
-    string name2 = _options.Value.Name;
-    string name3 = _optionsSnapshot.Value.Name;
+"ConnectionStrings": {
+  "ConStr": "dev con str"
 }
 ```
 
-If you put a breakpoint in the loop in the `Index` method and while the loop is 
-executing, if you change the value of the `Name` in `appsettings` then you can able 
-to see that `IOptionsMonitor` is returning the new value but `IOptions` and 
-`IOptionsSnapshot` is returning the old value.
+When you request the `Home > Index` method then the application logs the value of 
+the connection string.
 
-When redirect happens from `Index` to `Privacy` then a new request has been made
-and now you can able to see `IOptionsSnapshot` is returning the new value like
-`IOptionsMonitor` but `IOptions` is still returning the old value.
+```c#
+string conStr = _configuration.GetConnectionString("ConStr");
+_logger.LogInformation(conStr);
+```
 
-If you restart the app then you will able to see that `IOptions` is returning the
-new value like `IOptionsMonitor` and `IOptionsSnapshot`.
+When we run this app from Visual Studio then we can provide the `ASPNETCORE_ENVIRONMENT` 
+value in `launchSettings.json` and based on that you can see the output in the log.
 
-For more information about ASP.NET option pattern, please read 
-[this doc](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/options?view=aspnetcore-5.0).
+```
+"environmentVariables": {
+  "ASPNETCORE_ENVIRONMENT": "Development"
+}
+```
+
+But when we publish the app and store it in a docker image and run a container
+from that image then we can't use `launchSettings.json`. In that case we can 
+provide the value of `ASPNETCORE_ENVIRONMENT` at the time of docker container run.
+
+To create a docker image
+
+```
+docker build -t dockerenvvariable:1.0.0 .
+```
+
+To run a container from the image with `ASPNETCORE_ENVIRONMENT` value
+
+```
+docker run --name dockerenvvariable-c1 -p 80:80 -e ASPNETCORE_ENVIRONMENT=Development dockerenvvariable:1.0.0
+```
+
+Request `http:\\localhost:80` from a browser and you can see the value `dev con str` in the 
+log file.
 
 ## Tech stack
 
-Visual Studio 2019 and ASP.NET 5
+Visual Studio 2019, ASP.NET 5 and docker desktop.
