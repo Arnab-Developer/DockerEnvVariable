@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>62ef9e9e-abdb-4c71-b181-3801cdb0e757</UserSecretsId>
+    <Nullable>enable</Nullable>
+    <LangVersion>9</LangVersion>
+  </PropertyGroup>
+
+</Project>
