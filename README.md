@@ -10,7 +10,8 @@ and `appsettings.Development.json`.
 "ConnectionStrings": {
   "ConStr": "prd con str"
 }
-
+```
+```
 "ConnectionStrings": {
   "ConStr": "dev con str"
 }
